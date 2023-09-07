@@ -77,13 +77,40 @@ def get_data_other_user(contact_id):
     x = cursor.fetchall()
     return x
 
+def get_data_one_contact(contact_id):
+    cursor.execute('SELECT * FROM contacts WHERE id = (%s)', (contact_id,))
+    x = cursor.fetchall()
+    return x
+
+def get_data_chat(user_id, other_user_id):
+    cursor.execute('SELECT * FROM chat WHERE user_id = %s AND other_user_id = %s', (user_id, other_user_id))
+    x =  cursor.fetchall()
+    if not x:
+        cursor.execute('SELECT * FROM chat WHERE user_id = %s AND other_user_id = %s', (other_user_id, user_id))
+        y =  cursor.fetchall()
+        return y
+    else:
+        return x
+
+
 def create_chat(user_id, other_user_id):
-    cursor.execute('INSERT INTO chat (user_id, other_user_id) VALUES (%s, %s)', (user_id, other_user_id))
+    cursor.execute('SELECT * FROM chat WHERE user_id = %s AND other_user_id = %s', (user_id, other_user_id))
+    x =  cursor.fetchall()
+    cursor.execute('SELECT * FROM chat WHERE user_id = %s AND other_user_id = %s', (other_user_id, user_id))
+    y =  cursor.fetchall()
+    if not x and not y :
+        cursor.execute('INSERT INTO chat (user_id, other_user_id) VALUES (%s, %s)', (user_id, other_user_id))
+        conn.commit()
+        return True
+    else:
+       return False
+
+
+def sendMsg(msg, msg_date, user_id, chat_id):
+    cursor.execute('INSERT INTO msgs (msg, msg_date, user_id, chat_id) VALUES (%s, %s, %s, %s)', (msg, msg_date, user_id, chat_id))
     conn.commit()
 
-
-def sendMsg():
-    pass
-
-def viewMsg():
-    pass
+def viewMsg(chat_id):
+    cursor.execute('SELECT * FROM msgs WHERE chat_id = (%s)', (chat_id,))
+    x = cursor.fetchall()
+    return x

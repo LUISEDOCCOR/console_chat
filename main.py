@@ -2,6 +2,7 @@ import db
 import os
 import time
 import platform
+import msg
 import localdb as l_db
 from colorama import Fore, Back, Style
 from tqdm import tqdm
@@ -168,11 +169,19 @@ def chat():
                 load()     
                 x = db.get_data_other_user(contact_id)
                 other_id = x[0][0]
-                db.create_chat(local_id, other_id)
-                clear()
-                print('The chat has been created correctly')
-                time.sleep(1)
-                clear()
+                if db.create_chat(local_id, other_id):
+                    clear()
+                    print('The chat has been created correctly')
+                    time.sleep(1)
+                    clear()
+                    msg.msg(other_id)
+                else:
+                    clear()
+                    print('the chat had already been created')
+                    time.sleep(1)
+                    clear()
+                    x = db.get_data_chat(local_id, other_id)
+                    msg.msg(other_id, x[0][0])     
                 
 
                 
